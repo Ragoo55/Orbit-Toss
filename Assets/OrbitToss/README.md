@@ -44,6 +44,14 @@ round summary → RESET or MENU.
 ball goes back to the tray; low rails outside the court stop balls rolling away.
 Official two-side scoring (rule 10.16) is implemented in `BocciaScoring.ScoreEnd` for a future opponent mode.
 
+## My Best Scores (single player)
+- Main menu → **MY BEST SCORES** shows your 10 best practice rounds: rank, score, best ball distance, date and time.
+- About 3 s after the 6th ball settles, a **Round complete** screen shows your score and best ball. The round is saved
+  automatically if it is one of your 10 best ("NEW PERSONAL BEST!" for #1); the new row is marked `>` and `NEW`.
+- Saved on the device in `orbittoss_leaderboard.json` (Application.persistentDataPath), no internet or accounts.
+- Code: `LeaderboardService` (save/load/ranking) and `LeaderboardUI` (panels, built at start-up from the main menu's
+  button/text styles, so no scene changes and colour themes apply automatically).
+
 ## Court (World Boccia Rules 2025-2028 v1.2.1, rule 3.1 + court layout page). 1 unit = 1 m
 12.5 × 6 m court; six 1 m throwing boxes, 2.5 m deep; 10 m playing area; V-line 3 m past the throwing line at the
 side lines and 1.5 m at the centre vertex; cross 5 m from the front line, centred; 35 × 35 cm target box; wide tape

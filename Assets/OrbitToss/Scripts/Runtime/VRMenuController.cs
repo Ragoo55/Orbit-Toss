@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -47,6 +48,17 @@ namespace OrbitToss
         [SerializeField] private TMP_Text rackSideValue;
 
         private int tutorialPage;
+        private readonly List<GameObject> extraPanels = new List<GameObject>();
+        private LeaderboardUI leaderboard;
+
+        private void Awake()
+        {
+            // The leaderboard screens are built at start-up inside the menu canvas (see LeaderboardUI).
+            if (mainMenuPanel == null) return;
+            leaderboard = GetComponent<LeaderboardUI>();
+            if (leaderboard == null) leaderboard = gameObject.AddComponent<LeaderboardUI>();
+            leaderboard.Initialize(this, game, mainMenuPanel);
+        }
 
         public void Configure(GameObject menuCanvas, GameObject main, GameObject tutorial, GameObject settingsPanelObject, GameObject hud,
             GameManager gameManager, SettingsManager settingsManager, AudioManager audio)
@@ -76,6 +88,21 @@ namespace OrbitToss
         public void ShowMainMenu() => ShowOnly(mainMenuPanel);
         public void ShowHud() => ShowOnly(hudPanel);
 
+        /// <summary>Shows any registered panel (used by the leaderboard screens).</summary>
+        public void ShowPanel(GameObject panel) => ShowOnly(panel);
+
+        /// <summary>Adds an extra panel inside the menu canvas so panel switching hides it too.</summary>
+        public void RegisterPanel(GameObject panel)
+        {
+            if (panel != null && !extraPanels.Contains(panel)) extraPanels.Add(panel);
+        }
+
+        /// <summary>Called by GameManager when a round ends: shows the score and initials entry.</summary>
+        public void ShowRoundComplete(int score, float bestDistance)
+        {
+            if (leaderboard != null) leaderboard.ShowRoundComplete(score, bestDistance);
+        }
+
         private void ShowOnly(GameObject panel)
         {
             if (menuCanvasRoot != null) menuCanvasRoot.SetActive(panel != hudPanel);
@@ -83,6 +110,7 @@ namespace OrbitToss
             if (tutorialPanel != null) tutorialPanel.SetActive(panel == tutorialPanel);
             if (settingsPanel != null) settingsPanel.SetActive(panel == settingsPanel);
             if (hudPanel != null) hudPanel.SetActive(panel == hudPanel);
+            foreach (var extra in extraPanels) if (extra != null) extra.SetActive(extra == panel);
         }
 
         // ---------------------------------------------------------------- button handlers

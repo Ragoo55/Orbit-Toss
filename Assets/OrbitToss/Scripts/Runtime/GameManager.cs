@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -233,10 +234,34 @@ namespace OrbitToss
         {
             State = GameState.RoundOver;
             SetGrabbing(false);
-            if (hud == null) return;
-            hud.SetRound(Round, true);
-            int max = balls.Count * thresholds.perfectPoints;
-            hud.ShowInfo($"Round complete! Practice points: {PracticePoints} / {max}.\nPress RESET to play again or MENU to exit.");
+            if (hud != null)
+            {
+                hud.SetRound(Round, true);
+                int max = balls.Count * thresholds.perfectPoints;
+                hud.ShowInfo($"Round complete! Practice points: {PracticePoints} / {max}.\nPress RESET to play again or MENU to exit.");
+            }
+            StartCoroutine(ShowLeaderboardEntryAfterDelay());
+        }
+
+        [Tooltip("Seconds to show the last throw's feedback before the round-complete / leaderboard screen opens.")]
+        [SerializeField] private float leaderboardDelay = 3f;
+
+        private IEnumerator ShowLeaderboardEntryAfterDelay()
+        {
+            int round = Round;
+            yield return new WaitForSeconds(leaderboardDelay);
+            // Skip if the player already pressed Reset or Menu during the delay.
+            if (State != GameState.RoundOver || Round != round || menu == null) yield break;
+            menu.ShowRoundComplete(PracticePoints, BestDistance());
+        }
+
+        /// <summary>Closest in-play ball of this round in metres, or -1 if none stayed in play.</summary>
+        private float BestDistance()
+        {
+            float best = -1f;
+            foreach (var pair in measured)
+                if (inPlay[pair.Key] && (best < 0f || pair.Value < best)) best = pair.Value;
+            return best;
         }
 
         private bool AllThrownBallsSettled()
